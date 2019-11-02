@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xbb.blog.dao.AttentionMapper">
+    <resultMap id="BaseResultMap" type="com.xbb.blog.entity.Attention">
+        <!--
+          WARNING - @mbg.generated
+        -->
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="follow_id" jdbcType="INTEGER" property="followId"/>
+        <result column="fans_id" jdbcType="INTEGER" property="fansId"/>
+    </resultMap>
+
+    <resultMap id="userResultMap" extends="BaseResultMap" type="com.xbb.blog.entity.Attention">
+        <association property="user" javaType="com.xbb.blog.entity.User">
+            <id column="user_id" jdbcType="INTEGER" property="id"/>
+            <result column="username" jdbcType="VARCHAR" property="username"/>
+            <result column="head_portrait" jdbcType="VARCHAR" property="headPortrait"/>
+            <result column="popularity_count" jdbcType="INTEGER" property="popularityCount"/>
+        </association>
+    </resultMap>
+
+    <sql id="attentionColumn">
+        t1.`id`,
+        t2.`id` AS `user_id`,
+        t2.`username`,
+        t2.`head_portrait`,
+        t2.`popularity_count`
+    </sql>
+
+    <select id="selectPageHelperData" resultMap="userResultMap">
+        SELECT
+        <include refid="attentionColumn"></include>
+        FROM `attention` t1
+        <if test="queryType == 0">
+            LEFT JOIN `user` t2 ON t1.`follow_id` = t2.`id`
+            WHERE t1.`fans_id` = #{id}
+        </if>
+        <if test="queryType == 1">
+            LEFT JOIN `user` t2 ON t1.`fans_id` = t2.`id`
+            WHERE t1.`follow_id` = #{id}
+        </if>
+        ORDER BY t1.`id` ASC
+        LIMIT #{page},#{limit}
+    </select>
+
+    <select id="selectCountByUserId" resultType="java.lang.Integer">
+        SELECT COUNT(id) FROM attention
+        <where>
+            <if test="queryType == 0">
+                follow_id = #{userId}
+            </if>
+            <if test="queryType == 1">
+                fans_id = #{userId}
+            </if>
+        </where>
+    </select>
+    <!--<select id="selectAllByFollowId" resultMap="userResultMap">
+      SELECT
+      <include refid="attentionColumn"></include>
+      FROM `attention` t1
+      LEFT JOIN `user` t2 ON t1.`fans_id` = t2.`id`
+      WHERE t1.`follow_id` = #{id}
+      ORDER BY t1.`id` ASC
+      LIMIT #{page},#{limit}
+    </select>-->
+</mapper>

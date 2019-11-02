@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xbb.blog.dao.PermissionMapper">
+  <resultMap id="BaseResultMap" type="com.xbb.blog.entity.Permission">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="SMALLINT" property="id" />
+    <result column="permission_name" jdbcType="VARCHAR" property="permissionName" />
+    <result column="permission_uri" jdbcType="VARCHAR" property="permissionUri" />
+  </resultMap>
+
+  <select id="selectUserPermission" resultType="java.lang.String">
+    SELECT t3.permission_name FROM user_role t1
+    LEFT JOIN permission_role t2 ON t1.role_id = t2.role_id
+    LEFT JOIN permission t3 ON t2.permission_id = t3.id
+    WHERE t1.user_id = #{userId}
+  </select>
+</mapper>

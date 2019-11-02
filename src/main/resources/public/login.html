@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>登录页面</title>
+    <meta name="description" content="particles.js is a lightweight JavaScript library for creating particles.">
+    <meta name="author" content="Vincent Garreau"/>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" media="screen" href="/frontend/css/style.css">
+    <link rel="stylesheet" type="text/css" href="/frontend/css/reset.css"/>
+</head>
+<body>
+
+<div id="particles-js" class="layui-form">
+    <div class="login">
+        <div class="login-top">
+            登录
+        </div>
+        <div class="login-center clearfix">
+            <div class="login-center-img"><img src="/frontend/img/name.png"/></div>
+            <div class="login-center-input">
+                <input type="text" name="username" lay-verify="required" lay-reqtext="用户名是必填项哦"
+                       placeholder="请输入您的用户名"
+                       onfocus="this.placeholder=''"
+                       onblur="this.placeholder='请输入您的用户名'"/>
+                <div class="login-center-input-text">用户名</div>
+            </div>
+        </div>
+        <div class="login-center clearfix">
+            <div class="login-center-img"><img src="/frontend/img/password.png"/></div>
+            <div class="login-center-input layui-input-inline">
+                <input type="password" name="password" lay-verify="pass"
+                       placeholder="请输入您的密码"
+                       onfocus="this.placeholder=''"
+                       onblur="this.placeholder='请输入您的密码'"/>
+                <div class="login-center-input-text">密码</div>
+            </div>
+        </div>
+        <div class="login-center clearfix" style="margin-top: 10px; margin-bottom: 0px; position: relative">
+            <label>
+                <a href="#">忘记密码？</a>
+            </label>
+            <label style="position: absolute; right: 40px">
+                还没账号？<a href="/register.html">点击注册</a>
+            </label>
+        </div>
+        <div class="login-button" lay-submit lay-filter="login">
+            登陆
+        </div>
+        <div class="login-button" style="margin-top: 10px" onclick="index()">
+            游客访问
+        </div>
+    </div>
+    <div class="sk-rotating-plane"></div>
+</div>
+
+<!-- scripts -->
+<script src="/frontend/js/jquery-3.1.1.min.js"></script>
+<script src="/frontend/js/axquery.js"></script>
+<script src="/frontend/layui/layui.all.js"></script>
+<script src="/frontend/js/particles.min.js"></script>
+<script src="/frontend/js/app.js"></script>
+<script type="text/javascript">
+    layui.use('form', function () {
+        var form = layui.form;
+
+        form.verify({
+            pass: [
+                /^[\S]{6,12}$/
+                , '密码为6到12位哦，且不能出现空格'
+            ]
+        });
+
+        //监听提交
+        form.on('submit(login)', function (data) {
+            var user = data.field;
+            Ax.rest('/user/login.do', user, function (data) {
+                sessionStorage.setItem("user", data);
+                location.href = "/";
+            })
+        });
+    });
+
+    function index() {
+        location.href = "/";
+    }
+
+    $(document).keypress(function (e) {
+        // 回车键事件
+        if (e.which == 13) {
+            $('.login-button').click();
+        }
+    });
+
+    function hasClass(elem, cls) {
+        cls = cls || '';
+        if (cls.replace(/\s/g, '').length == 0) return false; //当cls没有参数时，返回false
+        return new RegExp(' ' + cls + ' ').test(' ' + elem.className + ' ');
+    }
+
+    function addClass(ele, cls) {
+        if (!hasClass(ele, cls)) {
+            ele.className = ele.className == '' ? cls : ele.className + ' ' + cls;
+        }
+    }
+
+    function removeClass(ele, cls) {
+        if (hasClass(ele, cls)) {
+            var newClass = ' ' + ele.className.replace(/[\t\r\n]/g, '') + ' ';
+            while (newClass.indexOf(' ' + cls + ' ') >= 0) {
+                newClass = newClass.replace(' ' + cls + ' ', ' ');
+            }
+            ele.className = newClass.replace(/^\s+|\s+$/g, '');
+        }
+    }
+</script>
+</body>
+</html>

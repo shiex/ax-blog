@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xbb.blog.dao.UserMapper">
+    <resultMap id="BaseResultMap" type="com.xbb.blog.entity.User">
+        <!--
+          WARNING - @mbg.generated
+        -->
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="username" jdbcType="VARCHAR" property="username"/>
+        <result column="password" jdbcType="VARCHAR" property="password"/>
+        <result column="email" jdbcType="VARCHAR" property="email"/>
+        <result column="cellphone" jdbcType="VARCHAR" property="cellphone"/>
+        <result column="head_portrait" jdbcType="VARCHAR" property="headPortrait"/>
+        <result column="file_dir" jdbcType="VARCHAR" property="fileDir"/>
+        <result column="role_id" jdbcType="SMALLINT" property="roleId"/>
+        <result column="file_request_path" jdbcType="VARCHAR" property="fileRequestPath"/>
+        <result column="intro" jdbcType="VARCHAR" property="intro"/>
+        <result column="follow_count" jdbcType="INTEGER" property="followCount"/>
+        <result column="fans_count" jdbcType="INTEGER" property="fansCount"/>
+        <result column="article_count" jdbcType="INTEGER" property="articleCount"/>
+        <result column="popularity_count" jdbcType="INTEGER" property="popularityCount"/>
+        <result column="register_time" jdbcType="TIMESTAMP" property="registerTime"/>
+        <result column="sex" jdbcType="BIT" property="sex"/>
+    </resultMap>
+
+    <resultMap id="attentionResultMap" extends="BaseResultMap" type="com.xbb.blog.entity.User">
+        <association property="attention" javaType="com.xbb.blog.entity.Attention">
+            <id column="attention_id" jdbcType="INTEGER" property="id"/>
+        </association>
+    </resultMap>
+
+    <select id="selectOneByUserId" resultMap="attentionResultMap">
+        SELECT
+        t1.id,t1.username,t1.head_portrait,t1.follow_count,t1.fans_count,t1.article_count,t1.popularity_count,
+        t2.id AS attention_id
+        FROM `user` t1
+        LEFT JOIN `attention` t2 ON t2.fans_id = #{userId2}
+        WHERE t1.id = #{userId}
+    </select>
+
+    <update id="updateCountIncreasing">
+        UPDATE `user` SET
+        <choose>
+            <when test="followCount != null">
+                follow_count = follow_count + 1
+            </when>
+            <when test="fansCount != null">
+                fans_count = fans_count + 1
+            </when>
+            <when test="articleCount != null">
+                article_count = article_count + 1
+            </when>
+            <when test="popularityCount != null">
+                popularity_count = popularity_count + 1
+            </when>
+        </choose>
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateCountDegression">
+        UPDATE `user` SET
+        <choose>
+            <when test="followCount != null">
+                follow_count = follow_count - 1
+            </when>
+            <when test="fansCount != null">
+                fans_count = fans_count - 1
+            </when>
+        </choose>
+        WHERE id = #{id}
+    </update>
+</mapper>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xbb.blog.dao.CommentMapper">
+  <resultMap id="BaseResultMap" type="com.xbb.blog.entity.Comment">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="article_id" jdbcType="INTEGER" property="articleId" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
+    <result column="content" jdbcType="VARCHAR" property="content" />
+    <result column="reply_count" jdbcType="SMALLINT" property="replyCount" />
+    <result column="comment_time" jdbcType="TIMESTAMP" property="commentTime" />
+  </resultMap>
+
+  <resultMap id="replyResultMap" extends="BaseResultMap" type="com.xbb.blog.entity.Comment">
+    <association property="user" javaType="com.xbb.blog.entity.User">
+      <id column="comment_user_id" property="id"/>
+      <result column="comment_username" property="username"/>
+      <result column="comment_head_portrait" property="headPortrait"/>
+    </association>
+    <collection property="replyList" ofType="com.xbb.blog.entity.Reply">
+      <result column="reply_content" property="content"/>
+      <result column="by_username" property="byUsername"/>
+      <result column="reply_time" property="replyTime"/>
+      <association property="user" javaType="com.xbb.blog.entity.User">
+        <id column="reply_user_id" property="id"/>
+        <result column="reply_username" property="username"/>
+        <result column="reply_head_portrait" property="headPortrait"/>
+      </association>
+    </collection>
+  </resultMap>
+
+  <select id="selectAllAndReply" resultMap="replyResultMap">
+    SELECT
+    t1.id,t1.content,t1.reply_count,t1.comment_time,
+    t2.id AS comment_user_id,t2.username AS comment_username,t2.head_portrait AS comment_head_portrait,
+    t3.content AS reply_content,t3.reply_time,t3.by_username,
+    t4.id AS reply_user_id, t4.username AS reply_username, t4.head_portrait AS reply_head_portrait
+    FROM COMMENT t1
+    LEFT JOIN USER t2 ON t1.user_id = t2.id
+    LEFT JOIN reply t3 ON t1.id = t3.comment_id
+    LEFT JOIN USER t4 ON t3.user_id = t4.id
+    WHERE t1.article_id = #{articleId}
+    ORDER BY t1.reply_count DESC
+  </select>
+
+  <update id="updateReplyCountIncreasing">
+    UPDATE `comment` SET reply_count = reply_count + 1
+    WHERE id = #{commentId}
+  </update>
+</mapper>

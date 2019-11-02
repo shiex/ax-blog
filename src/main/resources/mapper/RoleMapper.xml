@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xbb.blog.dao.RoleMapper">
+  <resultMap id="BaseResultMap" type="com.xbb.blog.entity.Role">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="SMALLINT" property="id" />
+    <result column="role_name" jdbcType="VARCHAR" property="roleName" />
+  </resultMap>
+
+  <select id="selectUserRole" resultType="java.lang.String">
+    SELECT t2.role_name FROM `user_role` t1
+    LEFT JOIN `role` t2 ON t1.role_id = t2.id
+    WHERE t1.user_id = #{userId}
+  </select>
+</mapper>

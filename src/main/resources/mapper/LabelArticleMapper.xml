@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xbb.blog.dao.LabelArticleMapper">
+    <resultMap id="BaseResultMap" type="com.xbb.blog.entity.LabelArticle">
+        <!--
+          WARNING - @mbg.generated
+        -->
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="article_label_id" jdbcType="INTEGER" property="articleLabelId"/>
+        <result column="article_id" jdbcType="INTEGER" property="articleId"/>
+    </resultMap>
+
+    <resultMap id="articleResultMap" extends="BaseResultMap" type="com.xbb.blog.entity.LabelArticle">
+        <association property="article" javaType="com.xbb.blog.entity.Article">
+            <id column="article_id" javaType="INTEGER" property="id"/>
+            <result column="user_id" javaType="INTEGER" property="userId"/>
+            <result column="title" jdbcType="VARCHAR" property="title"/>
+            <result column="synopsis" jdbcType="VARCHAR" property="synopsis"/>
+            <result column="appluad_count" jdbcType="INTEGER" property="appluadCount"/>
+            <result column="read_count" jdbcType="INTEGER" property="readCount"/>
+            <result column="comment_count" jdbcType="INTEGER" property="commentCount"/>
+            <result column="is_original" jdbcType="BIT" property="original"/>
+            <result column="is_stick" jdbcType="BIT" property="stick"/>
+            <result column="is_recommend" property="recommend"/>
+            <result column="issue_time" jdbcType="TIMESTAMP" property="issueTime"/>
+        </association>
+    </resultMap>
+
+    <select id="selectDataPageHelper" resultMap="articleResultMap">
+    SELECT
+      t1.id,
+      t2.id AS article_id,t2.`user_id`,t2.title,t2.content,t2.synopsis,
+      t2.appluad_count,t2.read_count,t2.comment_count,
+      t2.is_original,t2.is_recommend,t2.is_stick,t2.issue_time
+    FROM `label_article` t1
+    LEFT JOIN `article` t2 ON t1.`article_id` = t2.`id`
+    WHERE t1.`label_id` = #{id}
+    ORDER BY t1.`id` ASC
+    LIMIT #{page},#{limit}
+  </select>
+</mapper>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xbb.blog.dao.CollectMapper">
+    <resultMap id="BaseResultMap" type="com.xbb.blog.entity.Collect">
+        <!--
+          WARNING - @mbg.generated
+        -->
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="article_id" jdbcType="INTEGER" property="articleId"/>
+        <result column="user_id" jdbcType="INTEGER" property="userId"/>
+    </resultMap>
+
+    <resultMap id="articleResultMap" extends="BaseResultMap" type="com.xbb.blog.entity.Collect">
+        <association property="article" javaType="com.xbb.blog.entity.Article">
+            <id column="article_id" jdbcType="INTEGER" property="id"/>
+            <result column="title" jdbcType="VARCHAR" property="title"/>
+            <result column="synopsis" jdbcType="VARCHAR" property="synopsis"/>
+            <result column="appluad_count" jdbcType="INTEGER" property="appluadCount"/>
+            <result column="read_count" jdbcType="INTEGER" property="readCount"/>
+            <result column="comment_count" jdbcType="INTEGER" property="commentCount"/>
+            <result column="issue_time" jdbcType="TIMESTAMP" property="issueTime"/>
+        </association>
+    </resultMap>
+
+    <select id="selectPageHelperData" resultMap="articleResultMap">
+      SELECT
+      t1.`id`,
+      t2.`id` AS `article_id`, t2.`title`,t2.`synopsis`,
+      t2.`appluad_count`,t2.`comment_count`,t2.`read_count`,t2.`issue_time`
+      FROM `collect` t1
+      LEFT JOIN `article` t2 ON t1.`article_id` = t2.`id`
+      WHERE t1.`user_id` = #{id}
+      ORDER BY t1.`id` ASC
+      LIMIT #{page},#{limit}
+    </select>
+
+    <select id="selectCountByUserId" resultType="java.lang.Integer">
+        SELECT COUNT(id) FROM collect WHERE user_id = #{userId}
+    </select>
+</mapper>

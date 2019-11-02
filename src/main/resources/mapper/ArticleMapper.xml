@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xbb.blog.dao.ArticleMapper">
+    <resultMap id="BaseResultMap" type="com.xbb.blog.entity.Article">
+        <!--
+          WARNING - @mbg.generated
+        -->
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="classify_id" jdbcType="SMALLINT" property="classifyId"/>
+        <result column="user_id" jdbcType="INTEGER" property="userId"/>
+        <result column="title" jdbcType="VARCHAR" property="title"/>
+        <result column="synopsis" jdbcType="VARCHAR" property="synopsis"/>
+        <result column="appluad_count" jdbcType="INTEGER" property="appluadCount"/>
+        <result column="read_count" jdbcType="INTEGER" property="readCount"/>
+        <result column="comment_count" jdbcType="INTEGER" property="commentCount"/>
+        <result column="is_original" jdbcType="BIT" property="original"/>
+        <result column="is_stick" jdbcType="BIT" property="stick"/>
+        <result column="is_recommend" property="recommend"/>
+        <result column="issue_time" jdbcType="TIMESTAMP" property="issueTime"/>
+        <result column="content" jdbcType="LONGVARCHAR" property="content"/>
+    </resultMap>
+
+    <resultMap extends="BaseResultMap" id="userResultMap" type="com.xbb.blog.entity.Article">
+        <association javaType="com.xbb.blog.entity.User" property="user">
+            <id column="user_id" jdbcType="INTEGER" property="id"/>
+            <result column="username" jdbcType="VARCHAR" property="username"/>
+            <result column="head_portrait" jdbcType="VARCHAR" property="headPortrait"/>
+            <result column="follow_count" jdbcType="INTEGER" property="followCount"/>
+            <result column="fans_count" jdbcType="INTEGER" property="fansCount"/>
+            <result column="article_count" jdbcType="INTEGER" property="articleCount"/>
+            <result column="popularity_count" jdbcType="INTEGER" property="popularityCount"/>
+            <association javaType="com.xbb.blog.entity.Attention" property="attention">
+                <id column="attention_id" javaType="INTEGER" property="id"/>
+            </association>
+            <association javaType="com.xbb.blog.entity.Appluad" property="appluad">
+                <id column="appluad_id" javaType="INTEGER" property="id"/>
+            </association>
+        </association>
+        <association javaType="com.xbb.blog.entity.Label" property="label">
+            <id column="label_id" jdbcType="INTEGER" property="id"/>
+            <result column="label_name" jdbcType="VARCHAR" property="labelName"/>
+        </association>
+    </resultMap>
+
+    <resultMap extends="BaseResultMap" id="userClassifyResultMap" type="com.xbb.blog.entity.Article">
+        <association javaType="com.xbb.blog.entity.User" property="user">
+            <id column="user_id" jdbcType="INTEGER" property="id"/>
+            <result column="username" jdbcType="VARCHAR" property="username"/>
+            <result column="head_portrait" jdbcType="VARCHAR" property="headPortrait"/>
+        </association>
+        <association javaType="com.xbb.blog.entity.Classify" property="classify">
+            <id column="classify_id" jdbcType="SMALLINT" property="id"/>
+            <result column="name" jdbcType="VARCHAR" property="name"/>
+        </association>
+    </resultMap>
+
+    <resultMap extends="BaseResultMap" id="labelResultMap" type="com.xbb.blog.entity.Article">
+        <association javaType="com.xbb.blog.entity.Label" property="label">
+            <id column="label_id" jdbcType="INTEGER" property="id"/>
+            <result column="label_name" jdbcType="VARCHAR" property="labelName"/>
+        </association>
+    </resultMap>
+
+    <sql id="articleColumn">
+      t1.id,
+      t1.title,
+      t1.content,
+      t1.synopsis,
+      t1.appluad_count,
+      t1.read_count,
+      t1.comment_count,
+      t1.issue_time,
+      t1.is_original,
+      t1.is_recommend,
+      t1.is_stick
+    </sql>
+
+    <sql id="userColumn">
+      t2.id AS user_id,
+      t2.username,
+      t2.head_portrait
+    </sql>
+
+    <sql id="userStatusColumn">
+      t2.follow_count,
+      t2.fans_count,
+      t2.article_count,
+      t2.popularity_count
+    </sql>
+
+    <select id="selectDataPageHelper" resultMap="userClassifyResultMap">
+        SELECT
+        <include refid="articleColumn"></include>,
+        <include refid="userColumn"></include>,
+        t3.id AS classify_id,t3.name
+        FROM article t1
+        LEFT JOIN user t2 ON t1.user_id = t2.id
+        LEFT JOIN classify t3 ON t1.classify_id = t3.id
+        <if test="id != 0">
+            where t1.classify_id = #{id}
+        </if>
+        ORDER BY t1.id ASC
+        LIMIT #{page},#{limit}
+    </select>
+
+    <select id="selectDataPageHelper2" resultMap="labelResultMap">
+        SELECT
+        <include refid="articleColumn"></include>,
+        t3.id AS label_id,t3.label_name
+        FROM article t1
+        LEFT JOIN label_article t2 ON t1.id = t2.article_id
+        LEFT JOIN label t3 ON t2.label_id = t3.id
+        WHERE t1.user_id = #{id}
+        ORDER BY t1.is_recommend DESC,t1.is_stick DESC
+        LIMIT #{page},#{limit}
+    </select>
+
+    <select id="selectOneById" resultMap="userResultMap">
+        SELECT
+        <include refid="articleColumn"></include>,
+        <include refid="userColumn"></include>,
+        <include refid="userStatusColumn"></include>,
+        t3.`id` AS attention_id, t4.`id` AS appluad_id,t6.`id` AS `label_id`,t6.`label_name`
+        FROM `article` t1
+        LEFT JOIN `user` t2 ON t1.`user_id` = t2.`id`
+        LEFT JOIN `attention` t3 ON t1.`user_id` = t3.`follow_id` AND t3.`fans_id` = #{userId}
+        LEFT JOIN `appluad` t4 ON t1.`id` = t4.`article_id` AND t4.`user_id` = #{userId}
+        LEFT JOIN `label_article` t5 ON t1.`id` = t5.`article_id`
+        LEFT JOIN `label` t6 ON t5.`label_id` = t6.`id`
+        WHERE t1.`id` = #{articleId}
+    </select>
+
+    <select id="selectAllIndexHot" resultMap="BaseResultMap">
+        SELECT `id`,`title`
+        FROM `article`
+        ORDER BY `read_count` DESC
+        LIMIT #{count}
+    </select>
+
+    <select id="selectAllHot" resultType="com.xbb.blog.entity.Article">
+        SELECT id,title,read_count
+        FROM `article`
+        WHERE user_id = #{userId}
+        ORDER BY `read_count` DESC
+        LIMIT 10
+    </select>
+
+    <select id="selectAllRecommend" resultMap="BaseResultMap">
+        SELECT id,title
+        FROM article
+        WHERE id >=
+        (
+        (SELECT MAX(id) FROM article) - (SELECT MIN(id) FROM article)
+        )
+        *
+        RAND()
+        +
+        (SELECT MIN(id) FROM article)
+        AND user_id = #{userId}
+        AND is_recommend = 1
+        LIMIT 10;
+    </select>
+
+    <update id="updateCountIncreasing">
+        UPDATE `article` SET
+        <choose>
+            <when test="readCount != null">
+                read_count = read_count + 1
+            </when>
+            <when test="appluadCount != null">
+                appluad_count = appluad_count + 1
+            </when>
+            <when test="commentCount != null">
+                comment_count = comment_count + 1
+            </when>
+        </choose>
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateCountDegression">
+        UPDATE `article` SET
+        <choose>
+            <when test="appluadCount != null">
+                appluad_count = appluad_count - 1
+            </when>
+            <when test="commentCount != null">
+                comment_count = comment_count - 1
+            </when>
+        </choose>
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE `article` SET
+        <choose>
+            <when test="stick != null">
+                is_stick = #{stick}
+            </when>
+            <when test="recommend != null">
+                is_recommend = #{recommend}
+            </when>
+            <when test="labelId != null">
+                label_id = #{labelId}
+            </when>
+        </choose>
+        WHERE id = #{id}
+    </update>
+</mapper>

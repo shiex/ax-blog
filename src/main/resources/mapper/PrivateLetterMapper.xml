@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.xbb.blog.dao.PrivateLetterMapper">
+  <resultMap id="BaseResultMap" type="com.xbb.blog.entity.PrivateLetter">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="user_id_one" jdbcType="INTEGER" property="userIdOne" />
+    <result column="user_id_two" jdbcType="INTEGER" property="userIdTwo" />
+    <result column="message_one" jdbcType="VARCHAR" property="messageOne" />
+    <result column="message_two" jdbcType="VARCHAR" property="messageTwo" />
+  </resultMap>
+</mapper>
